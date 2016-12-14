@@ -44,6 +44,8 @@
             <classpath refid="SMT.classpath"/>
         </javac>
     	<jar destfile="artifacts/jsmtlib.jar" basedir="bin"/>
+    	<copy file="artifacts/jsmtlib.jar" tofile="../../iets3.core/code/languages/org.iets3.core/solutions/org.iets3.analysis.ui.plugin/lib/jsmtlib.jar"/>
+    	
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
         <ant antfile="build.xml" dir="${SMTTests.location}" inheritAll="false" target="clean"/>
