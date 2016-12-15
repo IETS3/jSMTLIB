@@ -638,6 +638,9 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			}
 			String r = solverProcess.sendAndListen("))\n");
 			IResponse response = parseResponse(r);
+//			return response;
+
+// old version:
 //			if (response instanceof ISeq) {
 //				List<ISexpr> valueslist = new LinkedList<ISexpr>();
 //				Iterator<ISexpr> iter = ((ISeq)response).sexprs().iterator();
@@ -650,7 +653,17 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 //				}	
 //				return new Sexpr.Seq(valueslist);
 //			}
-			return response;
+
+			// rewrite the SExpr to a proper IValueResponse
+			if (!(response instanceof Sexpr.Seq)) { return smtConfig.responseFactory.error("jSMTLIB: get_value did not return a list of values, but\n" + response.toString()); } 
+			List<IResponse.IPair<IExpr, IExpr>> result = new LinkedList<IResponse.IPair<IExpr, IExpr>>(); 
+			for (ISexpr sub: ((Sexpr.Seq) response).sexprs()) {
+				if (!(sub instanceof Sexpr.Seq)) { return smtConfig.responseFactory.error("jSMTLIB: an entry in the list of values returned by get_value is not a pair, but\n" + sub.toString()); } 
+				IExpr.ISymbol var = (IExpr.ISymbol)(((Sexpr.Seq) sub).sexprs().get(0));
+				IExpr value = (IExpr)(((Sexpr.Seq) sub).sexprs().get(1));
+				result.add(smtConfig.responseFactory.pair(var, value)); 
+			}
+			return smtConfig.responseFactory.get_value_response(result);
 		} catch (IOException e) {
 			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
