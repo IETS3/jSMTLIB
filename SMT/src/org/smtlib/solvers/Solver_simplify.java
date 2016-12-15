@@ -84,7 +84,7 @@ public class Solver_simplify extends Solver_test implements ISolver {
 			solverProcess.sendAndListen("(BG_PUSH (FORALL (B X Y) (IMPLIES (EQ B |@true|) (EQ (" + ite_term + " B X Y) X))))\n");
 			solverProcess.sendAndListen("(BG_PUSH (FORALL (B X Y) (IMPLIES (NEQ B |@true|) (EQ (" + ite_term + " B X Y) Y))))\n");
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to assert background formulae at start");
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert background formulae at start");
 		}
 		return smtConfig.responseFactory.success();
 	}
@@ -104,13 +104,13 @@ public class Solver_simplify extends Solver_test implements ISolver {
 		try {
 			String translatedSexpr = translate(sexpr);
 			if (translatedSexpr == null) {
-				return smtConfig.responseFactory.error("Failure in translating expression: " + smtConfig.defaultPrinter.toString(sexpr), sexpr.pos());
+				return smtConfig.responseFactory.error("jSMTLIB: Failure in translating expression: " + smtConfig.defaultPrinter.toString(sexpr), sexpr.pos());
 			}
 			conjunction = conjunction + " \n" + translatedSexpr;
 			//String s = solverProcess.sendAndListen("(BG_PUSH ",translatedSexpr," )\r\n");
 			//System.out.println("HEARD: " + s);
 		} catch (VisitorException e) {
-			return smtConfig.responseFactory.error(e.getMessage(),e.pos);
+			return smtConfig.responseFactory.error("jSMTLIB: " + e.getMessage(),e.pos);
 		}
 		return smtConfig.responseFactory.success();
 	}
@@ -142,7 +142,7 @@ public class Solver_simplify extends Solver_test implements ISolver {
 //			s = solverProcess.sendAndListen("(BG_POP)\r\n");
 			
 		} catch (IOException e) {
-			res = smtConfig.responseFactory.error("Failed to check-sat");
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to check-sat");
 		}
 		return res;
 	}
@@ -169,9 +169,9 @@ public class Solver_simplify extends Solver_test implements ISolver {
 				res = smtConfig.responseFactory.success();
 			}
 		} catch (IOException e) {
-			res = smtConfig.responseFactory.error("Failed to declare-fun: " + e.getMessage(),null); // FIXME - position?
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to declare-fun: " + e.getMessage(),null); // FIXME - position?
 		} catch (IVisitor.VisitorException e) {
-			res = smtConfig.responseFactory.error("Failed to declare-fun: " + e.getMessage(),null);
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to declare-fun: " + e.getMessage(),null);
 		}
 		return res;
 	}
@@ -201,9 +201,9 @@ public class Solver_simplify extends Solver_test implements ISolver {
 			assertExpr(f.fcn(f.symbol("="),cmd.symbol(),cmd.expression()));
 					
 		} catch (IOException e) {
-			res = smtConfig.responseFactory.error("Failed to declare-fun: " + e.getMessage(),null); // FIXME - position?
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to declare-fun: " + e.getMessage(),null); // FIXME - position?
 		} catch (IVisitor.VisitorException e) {
-			res = smtConfig.responseFactory.error("Failed to declare-fun: " + e.getMessage(),null);
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to declare-fun: " + e.getMessage(),null);
 		}
 		return res;
 	}
@@ -221,7 +221,7 @@ public class Solver_simplify extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.success();
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to push");
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to push");
 		}
 	}
 
@@ -238,7 +238,7 @@ public class Solver_simplify extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.success();
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to push");
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to push");
 		}
 	}
 
@@ -249,7 +249,7 @@ public class Solver_simplify extends Solver_test implements ISolver {
 		IResponse status = super.set_logic(logicName,pos);
 		if (!status.isOK()) return status;
 		if (logicName.contains("BV")) {
-			return smtConfig.responseFactory.error("The simplify solver does not yet support the bit-vector theory",pos);
+			return smtConfig.responseFactory.error("jSMTLIB: The simplify solver does not yet support the bit-vector theory",pos);
 		}
 		if (lSet) {
 			pushesStack.clear();
@@ -327,22 +327,22 @@ public class Solver_simplify extends Solver_test implements ISolver {
 	// These are all currently unsupported
 //	@Override
 //	public IResponse get_proof() {
-//		return smtConfig.responseFactory.error("The get-proof command is not implemented for simplify"); // FIXME - get-proof for simplify
+//		return smtConfig.responseFactory.error("jSMTLIB: The get-proof command is not implemented for simplify"); // FIXME - get-proof for simplify
 //	}
 //	
 //	@Override
 //	public IResponse get_value(IExpr ... terms) {
-//		return smtConfig.responseFactory.error("The get-value command is not implemented for simplify"); // FIXME - get-value for simplify
+//		return smtConfig.responseFactory.error("jSMTLIB: The get-value command is not implemented for simplify"); // FIXME - get-value for simplify
 //	}
 //	
 //	@Override
 //	public IResponse get_assignment() {
-//		return smtConfig.responseFactory.error("The get-assignment command is not implemented for simplify"); // FIXME - get-assignment for simplify
+//		return smtConfig.responseFactory.error("jSMTLIB: The get-assignment command is not implemented for simplify"); // FIXME - get-assignment for simplify
 //	}
 //	
 //	@Override
 //	public IResponse get_unsat_core() {
-//		return smtConfig.responseFactory.error("The get-proof command is not implemented for simplify"); // FIXME - get-proof for simplify
+//		return smtConfig.responseFactory.error("jSMTLIB: The get-proof command is not implemented for simplify"); // FIXME - get-proof for simplify
 //	}
 
 	@Override
@@ -353,16 +353,16 @@ public class Solver_simplify extends Solver_test implements ISolver {
 				term.accept(tc);
 			}
 		} catch (IVisitor.VisitorException e) {
-			tc.result.add(smtConfig.responseFactory.error(e.getMessage()));
+			tc.result.add(smtConfig.responseFactory.error("jSMTLIB: " + e.getMessage()));
 		} finally {
 			if (!tc.result.isEmpty()) return tc.result.get(0); // FIXME - report all errors?
 		}
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS)))) {
-			return smtConfig.responseFactory.error("The get-value command is only valid if :produce-models has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-value command is only valid if :produce-models has been enabled");
 		}
 		if (!smtConfig.responseFactory.sat().equals(checkSatStatus) && !smtConfig.responseFactory.unknown().equals(checkSatStatus)) {
-			return smtConfig.responseFactory.error("A get-value command is valid only after check-sat has returned sat or unknown");
+			return smtConfig.responseFactory.error("jSMTLIB: A get-value command is valid only after check-sat has returned sat or unknown");
 		}
 		return smtConfig.responseFactory.unsupported();
 	}

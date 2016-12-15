@@ -27,7 +27,7 @@ public class Solver_z3_4_3_2 extends Solver_z3_4_3 {
 	@Override
 	public IResponse push(int number) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a push command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a push command is issued");
 		}
 		if (number < 0) throw new SMT.InternalException("Internal bug: A push command called with a negative argument: " + number);
 		checkSatStatus = null;
@@ -45,7 +45,7 @@ public class Solver_z3_4_3_2 extends Solver_z3_4_3 {
 			// We can't use parseResponse to see if it an error, as the function does not expect Z3's buggy output.
 			return successOrEmpty(smtConfig);
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 }

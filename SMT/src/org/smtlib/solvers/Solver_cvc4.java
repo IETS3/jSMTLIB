@@ -126,7 +126,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 			if (smtConfig.verbose != 0) smtConfig.log.logDiag("Started CVC4 ");
 			return smtConfig.responseFactory.success();
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to start process " + cmds[0] + " : " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to start process " + cmds[0] + " : " + e.getMessage());
 		}
 	}
 	
@@ -149,9 +149,9 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 			if (cmd instanceof Ideclare_const) translatedCmd = "(declare-fun " + ((Ideclare_const)cmd).symbol() + " () " + ((Ideclare_const)cmd).resultSort() + ")";
 			return parseResponse(solverProcess.sendAndListen(translatedCmd,"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + translatedCmd + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + translatedCmd + " " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + translatedCmd + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + translatedCmd + " " + e);
 		}
 	}
 	
@@ -159,7 +159,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 		try {
 			return parseResponse(solverProcess.sendAndListen(cmd,"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + cmd + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + cmd + " " + e);
 		}
 	}
 	
@@ -179,7 +179,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 			responseParser = new org.smtlib.sexpr.Parser(smt(),new Pos.Source(response,null));
 			return responseParser.parseResponse(response);
 		} catch (ParserException e) {
-			return smtConfig.responseFactory.error("ParserException while parsing response: " + response + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: ParserException while parsing response: " + response + " " + e);
 		}
 	}
 
@@ -197,9 +197,9 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 		try {
 			return sendCommand("(assert " + translate(sexpr) + ")");
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Failed to assert expression: " + e + " " + sexpr);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr);
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to assert expression: " + e + " " + sexpr);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr);
 		}
 	}
 	
@@ -238,9 +238,9 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 			} catch (Exception e ) {
 				// continue - fall through
 			}
-			return smtConfig.responseFactory.error("Unexpected output from the solver: " + s);
+			return smtConfig.responseFactory.error("jSMTLIB: Unexpected output from the solver: " + s);
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("IOException while reading solver's reponse");
+			return smtConfig.responseFactory.error("jSMTLIB: IOException while reading solver's reponse");
 		}
 	}
 	
@@ -259,10 +259,10 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 //			else if (s.contains("unknown")) res = smtConfig.responseFactory.unknown();
 //			else 
 			if (solverProcess.isRunning(false)) res = parseResponse(s);
-			else res = smtConfig.responseFactory.error("Solver has unexpectedly terminated");
+			else res = smtConfig.responseFactory.error("jSMTLIB: Solver has unexpectedly terminated");
 			checkSatStatus = res;
 		} catch (Exception e) {
-			res = smtConfig.responseFactory.error("Failed to check-sat");
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to check-sat");
 		}
 		return res;
 	}
@@ -303,7 +303,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 		String option = key.value();
 //		if (Utils.PRINT_SUCCESS.equals(option)) {
 //			if (!(Utils.TRUE.equals(value) || Utils.FALSE.equals(value))) {
-//				return smtConfig.responseFactory.error("The value of the " + option + " option must be 'true' or 'false'");
+//				return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be 'true' or 'false'");
 //			}
 //		}
 		if (Utils.VERBOSITY.equals(option)) {
@@ -323,7 +323,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // true -> append
 					smtConfig.log.diag = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
 				}
 			}
 		} else if (Utils.REGULAR_OUTPUT_CHANNEL.equals(option)) {
@@ -339,7 +339,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // append
 					smtConfig.log.out = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the regular output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the regular output " + e.getMessage(),value.pos());
 				}
 			}
 		}
@@ -405,7 +405,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 	@Override
 	public IResponse set_info(IKeyword key, IAttributeValue value) {
 		if (Utils.infoKeywords.contains(key)) {
-			return smtConfig.responseFactory.error("Setting the value of a pre-defined keyword is not permitted: "+ 
+			return smtConfig.responseFactory.error("jSMTLIB: Setting the value of a pre-defined keyword is not permitted: "+ 
 					smtConfig.defaultPrinter.toString(key),key.pos());
 		}
 		return sendCommand(new org.smtlib.command.C_set_info(key,value));
@@ -460,9 +460,9 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 			IResponse response = parseResponse(r);
 			return response;
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + e);
 		}
 	}
 

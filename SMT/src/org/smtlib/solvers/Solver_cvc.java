@@ -76,7 +76,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 			if (smtConfig.verbose != 0) smtConfig.log.logDiag("Started cvc " );
 			return smtConfig.responseFactory.success();
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to start process " + cmds[0] + " : " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to start process " + cmds[0] + " : " + e.getMessage());
 		}
 	}
 	
@@ -102,9 +102,9 @@ public class Solver_cvc extends Solver_test implements ISolver {
 			}
 			return status;
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to assert expression: " + e + " " + sexpr, sexpr.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr, sexpr.pos());
 		} catch (VisitorException e) {
-			return smtConfig.responseFactory.error(e.getMessage(),e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: " + e.getMessage(),e.pos());
 		}
 	}
 
@@ -124,7 +124,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 			else res = smtConfig.responseFactory.unknown();
 			checkSatStatus = res;
 		} catch (IOException e) {
-			res = smtConfig.responseFactory.error("Failed to check-sat",null);
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to check-sat",null);
 		}
 		return res;
 	}
@@ -149,7 +149,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 			}
 			return status;
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to execute pop: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute pop: " + e);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.success();
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to execute push: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute push: " + e);
 		}
 	}
 
@@ -181,17 +181,17 @@ public class Solver_cvc extends Solver_test implements ISolver {
 		String option = key.value();
 		if (Utils.PRINT_SUCCESS.equals(option)) {
 			if (!(Utils.TRUE.equals(value) || Utils.FALSE.equals(value))) {
-				return smtConfig.responseFactory.error("The value of the " + option + " option must be 'true' or 'false'");
+				return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be 'true' or 'false'");
 			}
 		}
 		if (logicSet != null && (Utils.INTERACTIVE_MODE.equals(option)||Utils.PRODUCE_ASSERTIONS.equals(option))) {
-			return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 		}
 		if (Utils.PRODUCE_ASSIGNMENTS.equals(option) || 
 				//Utils.PRODUCE_MODELS.equals(option) || 
 				Utils.PRODUCE_PROOFS.equals(option) ||
 				Utils.PRODUCE_UNSAT_CORES.equals(option)) {
-			if (logicSet != null) return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			if (logicSet != null) return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 			return smtConfig.responseFactory.unsupported();
 		}
 		if (Utils.VERBOSITY.equals(option)) {
@@ -210,7 +210,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // append
 					smtConfig.log.diag = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
 				}
 			}
 		} else if (Utils.REGULAR_OUTPUT_CHANNEL.equals(option)) {
@@ -226,7 +226,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // append
 					smtConfig.log.out = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the regular output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the regular output " + e.getMessage(),value.pos());
 				}
 			}
 		} else if (Utils.INTERACTIVE_MODE.equals(option) && smtConfig.isVersion(SMTLIB.V20)) {
@@ -302,9 +302,9 @@ public class Solver_cvc extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.success();
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to execute set_logic: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute set_logic: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Failed to execute set_logic: " + e, e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute set_logic: " + e, e.pos());
 		}
 		
 	}
@@ -352,12 +352,12 @@ public class Solver_cvc extends Solver_test implements ISolver {
 				}
 				return res;
 			} else {
-				return smtConfig.responseFactory.error("CVC adapter does not implement parameterized user-defined sorts",cmd instanceof IPos.IPosable ? ((IPos.IPosable)cmd).pos() : null);
+				return smtConfig.responseFactory.error("jSMTLIB: CVC adapter does not implement parameterized user-defined sorts",cmd instanceof IPos.IPosable ? ((IPos.IPosable)cmd).pos() : null);
 			}
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to execute declare_sort: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute declare_sort: " + e);
 		} catch (VisitorException e) {
-			return smtConfig.responseFactory.error("Failed to execute declare_sort: " + e, e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute declare_sort: " + e, e.pos());
 		}
 	}
 
@@ -425,9 +425,9 @@ public class Solver_cvc extends Solver_test implements ISolver {
 				return res;
 			}
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to execute define_fun: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute define_fun: " + e);
 		} catch (VisitorException e) {
-			return smtConfig.responseFactory.error("Failed to execute define_fun: " + e, e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute define_fun: " + e, e.pos());
 		}
 	}
 
@@ -446,12 +446,12 @@ public class Solver_cvc extends Solver_test implements ISolver {
 				}
 				return res;
 			} else {
-				return smtConfig.responseFactory.error("Parameterized sort definitions not implemented"); // FIXME
+				return smtConfig.responseFactory.error("jSMTLIB: Parameterized sort definitions not implemented"); // FIXME
 			}
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Failed to execute define_sort: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute define_sort: " + e);
 		} catch (VisitorException e) {
-			return smtConfig.responseFactory.error("Failed to execute define_sort: " + e, e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to execute define_sort: " + e, e.pos());
 		}
 	}
 	
@@ -469,10 +469,10 @@ public class Solver_cvc extends Solver_test implements ISolver {
 		}
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS)))) {
-			return smtConfig.responseFactory.error("The get-value command is only valid if :produce-models has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-value command is only valid if :produce-models has been enabled");
 		}
 		if (!smtConfig.responseFactory.sat().equals(checkSatStatus) && !smtConfig.responseFactory.unknown().equals(checkSatStatus)) {
-			return smtConfig.responseFactory.error("A get-value command is valid only after check-sat has returned sat or unknown");
+			return smtConfig.responseFactory.error("jSMTLIB: A get-value command is valid only after check-sat has returned sat or unknown");
 		}
 		try {
 			String response = solverProcess.sendAndListen("COUNTERMODEL;\n");
@@ -539,11 +539,11 @@ public class Solver_cvc extends Solver_test implements ISolver {
 //			}
 //			return new Sexpr.Seq(values);
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to CVC solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to CVC solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to CVC solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to CVC solver: " + e);
 		} catch (IParser.ParserException e) {
-			return smtConfig.responseFactory.error("Error writing to CVC solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to CVC solver: " + e);
 		}
 	}
 

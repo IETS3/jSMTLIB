@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import org.smtlib.*;
 import org.smtlib.ICommand.Ideclare_fun;
 import org.smtlib.ICommand.Ideclare_sort;
+import org.smtlib.ICommand.Ideclare_const;
 import org.smtlib.ICommand.Idefine_fun;
 import org.smtlib.ICommand.Idefine_sort;
 import org.smtlib.IExpr.IAttribute;
@@ -531,6 +532,21 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	}
 
 	@Override
+	public IResponse declare_const(Ideclare_const cmd) {
+		if (!logicSet) {
+			return smtConfig.responseFactory.error("The logic must be set before a declare-const command is issued");
+		}
+		try {
+			checkSatStatus = null;
+			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
+		} catch (IOException e) {
+			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+		} catch (IVisitor.VisitorException e) {
+			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+		}
+	}
+
+	@Override
 	public IResponse define_sort(Idefine_sort cmd) {
 		if (!logicSet) {
 			return smtConfig.responseFactory.error("The logic must be set before a define-sort command is issued");
@@ -570,6 +586,22 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		}
 		try {
 			return parseResponse(solverProcess.sendAndListen("(get-unsat-core)\n"));
+		} catch (IOException e) {
+			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+		}
+	}
+
+
+	@Override 
+	public IResponse get_model() {
+		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS)))) {
+			return smtConfig.responseFactory.error("The get-model command is only valid if :produce-models has been enabled");
+		}
+		if (checkSatStatus != smtConfig.responseFactory.sat()) {
+			return smtConfig.responseFactory.error("The get-model command is only valid immediately after check-sat returned sat");
+		}
+		try {
+			return parseResponse(solverProcess.sendAndListen("(get-model)\n"));
 		} catch (IOException e) {
 			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
 		}

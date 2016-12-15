@@ -41,7 +41,7 @@ public class Solver_z3_2_11 extends Solver_z3_4_3 {
 			if (smtConfig.verbose != 0) smtConfig.log.logDiag("Started Z3-2.11 ");
 			return smtConfig.responseFactory.success();
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to start process " + cmds[0] + " : " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to start process " + cmds[0] + " : " + e.getMessage());
 		}
 	}
 	
@@ -49,10 +49,10 @@ public class Solver_z3_2_11 extends Solver_z3_4_3 {
 	public IResponse get_value(IExpr... terms) {
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS)))) {
-			return smtConfig.responseFactory.error("The get-value command is only valid if :produce-models has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-value command is only valid if :produce-models has been enabled");
 		}
 		if (!smtConfig.responseFactory.sat().equals(checkSatStatus) && !smtConfig.responseFactory.unknown().equals(checkSatStatus)) {
-			return smtConfig.responseFactory.error("A get-value command is valid only after check-sat has returned sat or unknown");
+			return smtConfig.responseFactory.error("jSMTLIB: A get-value command is valid only after check-sat has returned sat or unknown");
 		}
 		try {
 			solverProcess.sendNoListen("(get-value (");
@@ -75,9 +75,9 @@ public class Solver_z3_2_11 extends Solver_z3_4_3 {
 			}
 			return response;
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
