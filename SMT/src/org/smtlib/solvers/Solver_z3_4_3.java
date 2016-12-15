@@ -115,9 +115,9 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			translatedCmd = translate(cmd);
 			return parseResponse(solverProcess.sendAndListen(translatedCmd,"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + translatedCmd + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + translatedCmd + " " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + translatedCmd + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + translatedCmd + " " + e);
 		}
 	}
 	
@@ -125,7 +125,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		try {
 			return parseResponse(solverProcess.sendAndListen(cmd,"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to solver: " + cmd + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to solver: " + cmd + " " + e);
 		}
 	}
 	
@@ -144,7 +144,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			if (smtConfig.verbose != 0) smtConfig.log.logDiag("Started "+NAME_VALUE+" ");
 			return smtConfig.responseFactory.success();
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to start process " + cmds[0] + " : " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to start process " + cmds[0] + " : " + e.getMessage());
 		}
 	}
 	
@@ -156,7 +156,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			if (smtConfig.verbose != 0) smtConfig.log.logDiag("Ended Z3 ");
 			return successOrEmpty(smtConfig);
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -230,7 +230,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			responseParser = new org.smtlib.sexpr.Parser(smt(),new Pos.Source(response,null));
 			return responseParser.parseResponse(response);
 		} catch (ParserException e) {
-			return smtConfig.responseFactory.error("ParserException while parsing response: " + response + " " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: ParserException while parsing response: " + response + " " + e);
 		}
 	}
 
@@ -238,19 +238,19 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	public IResponse assertExpr(IExpr sexpr) {
 		IResponse response;
 		if (pushesDepth <= 0) {
-			return smtConfig.responseFactory.error("All assertion sets have been popped from the stack");
+			return smtConfig.responseFactory.error("jSMTLIB: All assertion sets have been popped from the stack");
 		}
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before an assert command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before an assert command is issued");
 		}
 		try {
 			String s = solverProcess.sendAndListen("(assert ",translate(sexpr),")\n");
 			response = parseResponse(s);
 			checkSatStatus = null;
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Failed to assert expression: " + e + " " + sexpr);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr);
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to assert expression: " + e + " " + sexpr);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr);
 		}
 		return response;
 	}
@@ -258,11 +258,11 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	@Override
 	public IResponse get_assertions() {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a get-assertions command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a get-assertions command is issued");
 		}
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
 		if (!smtConfig.relax && !Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_ASSERTIONS)))) {
-			return smtConfig.responseFactory.error("The get-assertions command is only valid if :interactive-mode has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-assertions command is only valid if :interactive-mode has been enabled");
 		}
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -294,9 +294,9 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			} catch (Exception e ) {
 				// continue - fall through
 			}
-			return smtConfig.responseFactory.error("Unexpected output from the Z3 solver: " + s);
+			return smtConfig.responseFactory.error("jSMTLIB: Unexpected output from the Z3 solver: " + s);
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("IOException while reading Z3 reponse");
+			return smtConfig.responseFactory.error("jSMTLIB: IOException while reading Z3 reponse");
 		}
 	}
 	
@@ -307,7 +307,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		IResponse res;
 		try {
 			if (!logicSet) {
-				return smtConfig.responseFactory.error("The logic must be set before a check-sat command is issued");
+				return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a check-sat command is issued");
 			}
 			String s = solverProcess.sendAndListen("(check-sat)\n");
 			//smtConfig.log.logDiag("HEARD: " + s);  // FIXME - detect errors - parseResponse?
@@ -317,12 +317,12 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 				else if (s.contains("sat")) res = smtConfig.responseFactory.sat();
 				else res = smtConfig.responseFactory.unknown();
 			} else {
-				res = smtConfig.responseFactory.error("Solver has unexpectedly terminated");
+				res = smtConfig.responseFactory.error("jSMTLIB: Solver has unexpectedly terminated");
 			}
 
 			checkSatStatus = res;
 		} catch (IOException e) {
-			res = smtConfig.responseFactory.error("Failed to check-sat");
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to check-sat");
 		}
 		return res;
 	}
@@ -341,24 +341,24 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	@Override
 	public IResponse pop(int number) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a pop command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a pop command is issued");
 		}
 		if (number < 0) throw new SMT.InternalException("Internal bug: A pop command called with a negative argument: " + number);
-		if (number > pushesDepth) return smtConfig.responseFactory.error("The argument to a pop command is too large: " + number + " vs. a maximum of " + (pushesDepth));
+		if (number > pushesDepth) return smtConfig.responseFactory.error("jSMTLIB: The argument to a pop command is too large: " + number + " vs. a maximum of " + (pushesDepth));
 		if (number == 0) return  successOrEmpty(smtConfig);
 		try {
 			checkSatStatus = null;
 			pushesDepth -= number;
 			return parseResponse(solverProcess.sendAndListen("(pop ",Integer.toString(number),")\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
 	@Override
 	public IResponse push(int number) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a push command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a push command is issued");
 		}
 		if (number < 0) throw new SMT.InternalException("Internal bug: A push command called with a negative argument: " + number);
 		checkSatStatus = null;
@@ -370,7 +370,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			if (r.isError() && !isWindows) return successOrEmpty(smtConfig);
 			return r;
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -380,7 +380,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		
 		if (smtConfig.verbose != 0) smtConfig.log.logDiag("#set-logic " + logicName);
 		if (logicSet) {
-			if (!smtConfig.relax) return smtConfig.responseFactory.error("Logic is already set");
+			if (!smtConfig.relax) return smtConfig.responseFactory.error("jSMTLIB: Logic is already set");
 			pop(pushesDepth);
 		}
 		pushesDepth++;
@@ -388,7 +388,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		try {
 			return parseResponse(solverProcess.sendAndListen("(set-logic ",logicName,")\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e,pos);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e,pos);
 		}
 	}
 
@@ -397,20 +397,20 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		String option = key.value();
 		if (Utils.PRINT_SUCCESS.equals(option)) {
 			if (!(Utils.TRUE.equals(value) || Utils.FALSE.equals(value))) {
-				return smtConfig.responseFactory.error("The value of the " + option + " option must be 'true' or 'false'");
+				return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be 'true' or 'false'");
 			}
 		}
 		if (logicSet && (smtConfig.utils.INTERACTIVE_MODE.equals(option)||smtConfig.utils.PRODUCE_ASSERTIONS.equals(option))) {
-			return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 		}
 		if (Utils.PRODUCE_ASSIGNMENTS.equals(option) || 
 				Utils.PRODUCE_PROOFS.equals(option) ||
 				Utils.PRODUCE_UNSAT_CORES.equals(option)) {
-			if (logicSet) return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			if (logicSet) return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 			return smtConfig.responseFactory.unsupported();
 		}
 		if (Utils.PRODUCE_MODELS.equals(option)) {
-			if (logicSet) return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			if (logicSet) return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 		}
 		if (Utils.VERBOSITY.equals(option)) {
 			IAttributeValue v = options.get(option);
@@ -428,7 +428,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // true -> append
 					smtConfig.log.diag = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
 				}
 			}
 		} else if (Utils.REGULAR_OUTPUT_CHANNEL.equals(option)) {
@@ -444,7 +444,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // append
 					smtConfig.log.out = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the regular output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the regular output " + e.getMessage(),value.pos());
 				}
 			}
 		}
@@ -456,7 +456,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		try {
 			solverProcess.sendAndListen("(set-option ",option," ",value.toString(),")\n");// FIXME - detect errors
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 		
 		return successOrEmpty(smtConfig);
@@ -478,7 +478,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	@Override
 	public IResponse set_info(IKeyword key, IAttributeValue value) {
 		if (Utils.infoKeywords.contains(key)) {
-			return smtConfig.responseFactory.error("Setting the value of a pre-defined keyword is not permitted: "+ 
+			return smtConfig.responseFactory.error("jSMTLIB: Setting the value of a pre-defined keyword is not permitted: "+ 
 					smtConfig.defaultPrinter.toString(key),key.pos());
 		}
 		return sendCommand(new org.smtlib.command.C_set_info(key,value));
@@ -488,122 +488,121 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	@Override
 	public IResponse declare_fun(Ideclare_fun cmd) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a declare-fun command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a declare-fun command is issued");
 		}
 		try {
 			checkSatStatus = null;
 			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
 			
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
 	@Override
 	public IResponse define_fun(Idefine_fun cmd) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a define-fun command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a define-fun command is issued");
 		}
 		try {
 			checkSatStatus = null;
 			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
 	@Override
 	public IResponse declare_sort(Ideclare_sort cmd) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a declare-sort command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a declare-sort command is issued");
 		}
 		try {
 			checkSatStatus = null;
 			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
 	@Override
 	public IResponse declare_const(Ideclare_const cmd) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a declare-const command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a declare-const command is issued");
 		}
 		try {
 			checkSatStatus = null;
 			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
 	@Override
 	public IResponse define_sort(Idefine_sort cmd) {
 		if (!logicSet) {
-			return smtConfig.responseFactory.error("The logic must be set before a define-sort command is issued");
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a define-sort command is issued");
 		}
 		try {
 			checkSatStatus = null;
 			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 	
 	@Override 
 	public IResponse get_proof() {
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_PROOFS)))) {
-			return smtConfig.responseFactory.error("The get-proof command is only valid if :produce-proofs has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-proof command is only valid if :produce-proofs has been enabled");
 		}
 		if (checkSatStatus != smtConfig.responseFactory.unsat()) {
-			return smtConfig.responseFactory.error("The get-proof command is only valid immediately after check-sat returned unsat");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-proof command is only valid immediately after check-sat returned unsat");
 		}
 		try {
 			return parseResponse(solverProcess.sendAndListen("(get-proof)\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
 	@Override 
 	public IResponse get_unsat_core() {
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_UNSAT_CORES)))) {
-			return smtConfig.responseFactory.error("The get-unsat-core command is only valid if :produce-unsat-cores has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-unsat-core command is only valid if :produce-unsat-cores has been enabled");
 		}
 		if (checkSatStatus != smtConfig.responseFactory.unsat()) {
-			return smtConfig.responseFactory.error("The get-unsat-core command is only valid immediately after check-sat returned unsat");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-unsat-core command is only valid immediately after check-sat returned unsat");
 		}
 		try {
 			return parseResponse(solverProcess.sendAndListen("(get-unsat-core)\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
-
 
 	@Override 
 	public IResponse get_model() {
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS)))) {
-			return smtConfig.responseFactory.error("The get-model command is only valid if :produce-models has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-model command is only valid if :produce-models has been enabled");
 		}
 		if (checkSatStatus != smtConfig.responseFactory.sat()) {
-			return smtConfig.responseFactory.error("The get-model command is only valid immediately after check-sat returned sat");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-model command is only valid immediately after check-sat returned sat");
 		}
 		try {
 			return parseResponse(solverProcess.sendAndListen("(get-model)\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -611,15 +610,15 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	public IResponse get_assignment() {
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_ASSIGNMENTS)))) {
-			return smtConfig.responseFactory.error("The get-assignment command is only valid if :produce-assignments has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-assignment command is only valid if :produce-assignments has been enabled");
 		}
 		if (checkSatStatus != smtConfig.responseFactory.sat() && checkSatStatus != smtConfig.responseFactory.unknown()) {
-			return smtConfig.responseFactory.error("The get-assignment command is only valid immediately after check-sat returned sat or unknown");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-assignment command is only valid immediately after check-sat returned sat or unknown");
 		}
 		try {
 			return parseResponse(solverProcess.sendAndListen("(get-assignment)\n"));
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -627,10 +626,10 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	public IResponse get_value(IExpr... terms) {
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
 		if (!Utils.TRUE.equals(get_option(smtConfig.exprFactory.keyword(Utils.PRODUCE_MODELS)))) {
-			return smtConfig.responseFactory.error("The get-value command is only valid if :produce-models has been enabled");
+			return smtConfig.responseFactory.error("jSMTLIB: The get-value command is only valid if :produce-models has been enabled");
 		}
 		if (!smtConfig.responseFactory.sat().equals(checkSatStatus) && !smtConfig.responseFactory.unknown().equals(checkSatStatus)) {
-			return smtConfig.responseFactory.error("A get-value command is valid only after check-sat has returned sat or unknown");
+			return smtConfig.responseFactory.error("jSMTLIB: A get-value command is valid only after check-sat has returned sat or unknown");
 		}
 		try {
 			solverProcess.sendNoListen("(get-value (");
@@ -653,9 +652,9 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 //			}
 			return response;
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 

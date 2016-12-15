@@ -80,7 +80,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			if (smtConfig.verbose != 0) smtConfig.log.logDiag("Started yices " + (solverProcess!=null));
 			return smtConfig.responseFactory.success();
 		} catch (Exception e) {
-			return smtConfig.responseFactory.error("Failed to start process " + cmds[0] + " : " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to start process " + cmds[0] + " : " + e.getMessage());
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			}
 			return null;
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error(e.getMessage(),pos);
+			return smtConfig.responseFactory.error("jSMTLIB: " + e.getMessage(),pos);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			if (response != null) return response;
 			return status;
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Yices assert command failed: " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Yices assert command failed: " + e.getMessage());
 		}
 
 	}
@@ -147,7 +147,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			else res = smtConfig.responseFactory.unknown();
 			checkSatStatus = res;
 		} catch (IOException e) {
-			res = smtConfig.responseFactory.error("Failed to check-sat");
+			res = smtConfig.responseFactory.error("jSMTLIB: Failed to check-sat");
 		}
 		return res;
 	}
@@ -183,7 +183,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 		// FIXME - discrimninate among logics
 
 		if (lSet) {
-			if (!smtConfig.relax) return smtConfig.responseFactory.error("Logic is already set");
+			if (!smtConfig.relax) return smtConfig.responseFactory.error("jSMTLIB: Logic is already set");
 			IResponse response = send(pos,"(reset)");
 			if (response != null) return response;
 		}
@@ -195,18 +195,18 @@ public class Solver_yices extends Solver_test implements ISolver {
 		String option = key.value();
 		if (Utils.PRINT_SUCCESS.equals(option)) {
 			if (!(Utils.TRUE.equals(value) || Utils.FALSE.equals(value))) {
-				return smtConfig.responseFactory.error("The value of the " + option + " option must be 'true' or 'false'");
+				return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be 'true' or 'false'");
 			}
 			((Response.Factory)smtConfig.responseFactory).printSuccess = !Utils.FALSE.equals(value);
 		}
 		if (logicSet != null && (smtConfig.utils.INTERACTIVE_MODE.equals(option)||smtConfig.utils.PRODUCE_ASSERTIONS.equals(option))) {
-			return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 		}
 		if (Utils.PRODUCE_ASSIGNMENTS.equals(option) || 
 				Utils.PRODUCE_MODELS.equals(option) || 
 				Utils.PRODUCE_PROOFS.equals(option) ||
 				Utils.PRODUCE_UNSAT_CORES.equals(option)) {
-			if (logicSet != null) return smtConfig.responseFactory.error("The value of the " + option + " option must be set before the set-logic command");
+			if (logicSet != null) return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 			return smtConfig.responseFactory.unsupported();
 		}
 		if (Utils.VERBOSITY.equals(option)) {
@@ -225,7 +225,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // append
 					smtConfig.log.diag = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the diagnostic output " + e.getMessage(),value.pos());
 				}
 			}
 		} else if (Utils.REGULAR_OUTPUT_CHANNEL.equals(option)) {
@@ -241,7 +241,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 					FileOutputStream f = new FileOutputStream(name,true); // append
 					smtConfig.log.out = new PrintStream(f);
 				} catch (java.io.IOException e) {
-					return smtConfig.responseFactory.error("Failed to open or write to the regular output " + e.getMessage(),value.pos());
+					return smtConfig.responseFactory.error("jSMTLIB: Failed to open or write to the regular output " + e.getMessage(),value.pos());
 				}
 			}
 		}
@@ -304,7 +304,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			if (response != null) return response;
 			return status;
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("declare-fun command failed: " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: declare-fun command failed: " + e.getMessage());
 		}
 	}
 
@@ -342,7 +342,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			return status;
 
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("assert command failed: " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: assert command failed: " + e.getMessage());
 		}
 
 	}
@@ -365,7 +365,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			// Besides Yices uses structural equivalence.
 
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Yices declare-sort command failed: " + e.getMessage(),e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Yices declare-sort command failed: " + e.getMessage(),e.pos());
 		}
 
 	}
@@ -390,7 +390,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 				// Besides Yices uses structural equivalence.
 
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Yices define-sort command failed: " + e.getMessage(),e.pos());
+			return smtConfig.responseFactory.error("jSMTLIB: Yices define-sort command failed: " + e.getMessage(),e.pos());
 		}
 
 	}
@@ -406,7 +406,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.unsupported(); // FIXME - need to return the proof
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -421,7 +421,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.unsupported(); // FIXME - need to return the unsat core
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -436,7 +436,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.unsupported(); // FIXME - need to return the assignment
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Z3 solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
 	}
 
@@ -455,9 +455,9 @@ public class Solver_yices extends Solver_test implements ISolver {
 			}
 			return smtConfig.responseFactory.unsupported(); // FIXME - need to return the results
 		} catch (IOException e) {
-			return smtConfig.responseFactory.error("Error writing to Yices solver: " + e);
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Yices solver: " + e);
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("Error translating for Yices: " + e.getMessage());
+			return smtConfig.responseFactory.error("jSMTLIB: Error translating for Yices: " + e.getMessage());
 		}
 	}
 	
