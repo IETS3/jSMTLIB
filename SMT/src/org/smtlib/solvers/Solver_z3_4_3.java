@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import org.smtlib.*;
 import org.smtlib.sexpr.Sexpr;
 import org.smtlib.sexpr.ISexpr;
+import org.smtlib.impl.SMTExpr;
 import org.smtlib.ICommand.Ideclare_fun;
 import org.smtlib.ICommand.Ideclare_sort;
 import org.smtlib.ICommand.Ideclare_const;
@@ -624,6 +625,36 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		}
 	}
 
+	public IExpr translateSExprToIExpr(ISexpr sexpr) {
+		switch (sexpr.kind()) {
+			case "sequence":
+			    List<ISexpr> tail = ((Sexpr.Seq)sexpr).sexprs();
+			    ISexpr head = tail.remove(0);
+				if (!("token".equals(head.kind()) || "symbol".equals(head.kind()))) {
+					throw new SMT.InternalException("Cannot translate SExpr.Seq to IExpr since it does not start with a token:\n" + sexpr.toString() + "\n" + head.kind());
+				}
+				// translate to function application
+
+				List<IExpr> translatedTail = new LinkedList<IExpr>();
+				for (ISexpr sub : tail) {
+					translatedTail.add(translateSExprToIExpr(sub));
+				}
+				return smtConfig.exprFactory.fcn(smtConfig.exprFactory.symbol(head.toString()), translatedTail);
+			case "token":
+				return smtConfig.exprFactory.symbol(((Sexpr.Token)sexpr).toString());
+			case "symbol":
+				return smtConfig.exprFactory.symbol(((SMTExpr.Symbol)sexpr).value());
+			case "decimal":
+				return smtConfig.exprFactory.decimal(sexpr.toString());
+			case "numeral":
+				return smtConfig.exprFactory.numeral(sexpr.toString());
+			case "Expr":
+				return ((Sexpr.Expr)sexpr).expr;
+			default:
+				throw new SMT.InternalException("encountered unknown kind of SExpr: '" + sexpr.kind() + "':" + sexpr.toString());
+		}
+	}
+
 	@Override 
 	public IResponse get_value(IExpr... terms) {
 		// FIXME - do we really want to call get-option here? it involves going to the solver?
@@ -662,7 +693,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			for (ISexpr sub: ((Sexpr.Seq) response).sexprs()) {
 				if (!(sub instanceof Sexpr.Seq)) { return smtConfig.responseFactory.error("jSMTLIB: an entry in the list of values returned by get_value is not a pair, but\n" + sub.toString()); } 
 				IExpr.ISymbol var = (IExpr.ISymbol)(((Sexpr.Seq) sub).sexprs().get(0));
-				IExpr value = (IExpr)(((Sexpr.Seq) sub).sexprs().get(1));
+				IExpr value = translateSExprToIExpr(((Sexpr.Seq) sub).sexprs().get(1));
 				result.add(smtConfig.responseFactory.pair(var, value)); 
 			}
 			return smtConfig.responseFactory.get_value_response(result);
