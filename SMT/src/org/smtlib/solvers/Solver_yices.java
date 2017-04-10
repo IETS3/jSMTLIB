@@ -588,7 +588,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 		@Override
 		public String visit(IFcnExpr e) throws IVisitor.VisitorException {
 			Iterator<IExpr> iter = e.args().iterator();
-			if (!iter.hasNext()) throw new VisitorException("Did not expect an empty argument list",e.pos());
+			if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list");
 			IQualifiedIdentifier fcn = e.head();
 			String fcnname = fcn.headSymbol().accept(this);
 			// FIXME - should we be doing these comparisons with strings?

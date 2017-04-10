@@ -504,6 +504,20 @@ public abstract class SMTExpr implements IExpr {
 
 		@Override
 		public boolean isError() { throw new RuntimeException(); } // FIXME - should never be called
+
+		@Override
+		public String toString() {
+			String params = "";
+			if (parameters().size() > 0) {
+				params = parameters().get(0).toString();
+				for(int i = 1; i < parameters().size(); i++) {
+					params += " " + parameters().get(i).toString();
+				}
+			}
+			
+			return "(exists (" + params + ") " + expr().toString() + ")";
+			
+		}
 	}
 
 	static public class Forall extends Pos.Posable implements IForall {
@@ -535,6 +549,20 @@ public abstract class SMTExpr implements IExpr {
 
 		@Override
 		public boolean isError() { throw new RuntimeException(); } // FIXME - should never be called
+
+		@Override
+		public String toString() {
+			String params = "";
+			if (parameters().size() > 0) {
+				params = parameters().get(0).toString();
+				for(int i = 1; i < parameters().size(); i++) {
+					params += " " + parameters().get(i).toString();
+				}
+			}
+			
+			return "(forall (" + params + ") " + expr().toString() + ")";
+			
+		}
 	}
 
 	static public class Declaration extends Pos.Posable implements IDeclaration {
@@ -559,6 +587,11 @@ public abstract class SMTExpr implements IExpr {
 
 		@Override
 		public <T> T accept(org.smtlib.IVisitor<T> v) throws IVisitor.VisitorException { return v.visit(this); }
+		
+		@Override
+		public String toString() {
+			return "(" + parameter() + " " + sort() + ")";
+		}
 	}
 
 	static public class Binding extends Pos.Posable implements IBinding {

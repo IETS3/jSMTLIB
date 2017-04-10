@@ -524,7 +524,7 @@ public class Solver_simplify extends Solver_test implements ISolver {
 			StringBuilder sb = new StringBuilder();
 			try {
 				Iterator<IExpr> iter = e.args().iterator();
-				if (!iter.hasNext()) throw new VisitorException("Did not expect an empty argument list",e.pos());
+				if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list");
 				if (!(e.head() instanceof ISymbol)) {
 					throw new VisitorException("Have not yet implemented parameterized bit-vector functions",e.pos());
 				}

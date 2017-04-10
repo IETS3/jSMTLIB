@@ -800,7 +800,7 @@ public class Solver_cvc extends Solver_test implements ISolver {
 		public String visit(IFcnExpr e) throws IVisitor.VisitorException {
 			boolean resultIsFormula = this.isFormula;
 			Iterator<IExpr> iter = e.args().iterator();
-			if (!iter.hasNext()) throw new VisitorException("Did not expect an empty argument list", e.pos());
+			if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list");
 			String oldName = e.head().headSymbol().toString();
 			String newName = e.head().headSymbol().accept(this);
 			int length = e.args().size();

@@ -197,7 +197,7 @@ public class Solver_z3_2_11 extends Solver_z3_4_3 {
 		public Void visit(IFcnExpr e) throws IVisitor.VisitorException {
 			try {
 				Iterator<IExpr> iter = e.args().iterator();
-				if (!iter.hasNext()) throw new VisitorException("Did not expect an empty argument list",e.pos());
+				if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list");
 				IQualifiedIdentifier fcn = e.head();
 				String fcnname = fcn.toString(); // FIXME - fcn.accept(this);
 				int length = e.args().size();

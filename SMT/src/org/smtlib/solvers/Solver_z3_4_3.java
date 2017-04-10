@@ -251,9 +251,9 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			response = parseResponse(s);
 			checkSatStatus = null;
 		} catch (IVisitor.VisitorException e) {
-			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr);
-		} catch (Exception e) {
-			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + " " + sexpr);
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + ";Asserted expr:" + sexpr);
+		} catch (IOException e) {
+			return smtConfig.responseFactory.error("jSMTLIB: Failed to assert expression: " + e + ";Asserted expr:" + sexpr);
 		}
 		return response;
 	}
@@ -407,12 +407,11 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 		}
 		if (Utils.PRODUCE_ASSIGNMENTS.equals(option) || 
-				Utils.PRODUCE_PROOFS.equals(option) ||
-				Utils.PRODUCE_UNSAT_CORES.equals(option)) {
+				Utils.PRODUCE_PROOFS.equals(option)) {
 			if (logicSet) return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 			return smtConfig.responseFactory.unsupported();
 		}
-		if (Utils.PRODUCE_MODELS.equals(option)) {
+		if (Utils.PRODUCE_MODELS.equals(option) || Utils.PRODUCE_UNSAT_CORES.equals(option)) {
 			if (logicSet) return smtConfig.responseFactory.error("jSMTLIB: The value of the " + option + " option must be set before the set-logic command");
 		}
 		if (Utils.VERBOSITY.equals(option)) {
@@ -588,7 +587,11 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			return smtConfig.responseFactory.error("jSMTLIB: The get-unsat-core command is only valid immediately after check-sat returned unsat");
 		}
 		try {
-			return parseResponse(solverProcess.sendAndListen("(get-unsat-core)\n"));
+			IResponse response = parseResponse(solverProcess.sendAndListen("(get-unsat-core)\n"));
+			if (!(response instanceof Sexpr.Seq)) {
+				return smtConfig.responseFactory.error("jSMTLIB: get_unsat_core did not return a list of symbols, but\n" + response.toString());
+			}
+			return response;
 		} catch (IOException e) {
 			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
 		}
@@ -737,7 +740,7 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		public Void visit(IFcnExpr e) throws IVisitor.VisitorException {
 			// Only - for >=2 args is not correctly done, but we can't delegate to translateSMT because it might be a sub-expression.
 			Iterator<IExpr> iter = e.args().iterator();
-			if (!iter.hasNext()) throw new VisitorException("Did not expect an empty argument list",e.pos());
+			if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list in function call (" + e.head().toString() + ")");
 			IQualifiedIdentifier fcn = e.head();
 			int length = e.args().size();
 			if (length > 2 && (fcn instanceof IIdentifier) && fcn.toString().equals("-")) {
