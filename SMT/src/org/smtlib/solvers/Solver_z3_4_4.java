@@ -19,7 +19,7 @@ public class Solver_z3_4_4 extends Solver_z3_4_3_2 {
     protected String VERSION_VALUE = "4.4";
 
 	protected String cmds_win[] = new String[]{ "", "/smt2","/in"};
-	protected String cmds_mac[] = new String[]{ "", "-smt2","-in","SMTLIB2_COMPLIANT=true"}; 
+	protected String cmds_mac[] = new String[]{ "", "-smt2","-in"}; 
 	protected String cmds_unix[] = new String[]{ "", "-smt2","-in"}; 
 
     public Solver_z3_4_4(Configuration smtConfig, String executable) {

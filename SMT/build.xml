@@ -44,7 +44,7 @@
             <classpath refid="SMT.classpath"/>
         </javac>
     	<jar destfile="artifacts/jsmtlib.jar" basedir="bin"/>
-    	<copy file="artifacts/jsmtlib.jar" tofile="../../iets3.core/code/languages/org.iets3.core/solutions/org.iets3.tools.SMTLIB/lib/jsmtlib.jar"/>
+    	<copy file="artifacts/jsmtlib.jar" tofile="../../iets3.core/code/languages/org.iets3.core/solutions/org.iets3.tools.SMTLIB/lib/jSMTLIB.jar"/>
     	
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">

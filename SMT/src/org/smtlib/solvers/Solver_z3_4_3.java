@@ -63,8 +63,8 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	
 	/** The command-line arguments for launching the Z3 solver */
 	protected String cmds[];
-	protected String cmds_win[] = new String[]{ "", "/smt2","/in","SMTLIB2_COMPLIANT=true"}; 
-	protected String cmds_mac[] = new String[]{ "", "-smt2","-in","SMTLIB2_COMPLIANT=true"}; 
+	protected String cmds_win[] = new String[]{ "", "/smt2","/in"}; 
+	protected String cmds_mac[] = new String[]{ "", "-smt2","-in"}; 
 	protected String cmds_unix[] = new String[]{ "", "-smt2","-in"}; 
 
 	/** The object that interacts with external processes */
@@ -104,8 +104,8 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		if (timeout > 0) {
 			List<String> args = new java.util.ArrayList<String>(cmds.length+1);
 			args.addAll(Arrays.asList(cmds));
-			if (isWindows) args.add("/t:" + Integer.toString((int)timeout));
-			else           args.add("-t:" + Integer.toString((int)timeout));
+			if (isWindows) args.add("/T:" + Integer.toString((int)timeout));
+			else           args.add("-T:" + Integer.toString((int)timeout));
 			cmds = args.toArray(new String[args.size()]);
 		}
 		solverProcess = new SolverProcess(cmds,"\n",smtConfig.logfile);
@@ -318,7 +318,8 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			if (solverProcess.isRunning(false)) {
 				if (s.contains("unsat")) res = smtConfig.responseFactory.unsat();
 				else if (s.contains("sat")) res = smtConfig.responseFactory.sat();
-				else res = smtConfig.responseFactory.unknown();
+				else if (s.contains("timeout")) res = smtConfig.responseFactory.timeout();
+				else res = parseResponse(s);
 			} else {
 				res = smtConfig.responseFactory.error("jSMTLIB: Solver has unexpectedly terminated");
 			}

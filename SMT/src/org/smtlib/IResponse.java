@@ -46,6 +46,7 @@ public interface IResponse extends IAccept {
 		IResponse success();
 		IResponse unsupported();
 		IResponse unknown();
+		IResponse timeout();
 		IResponse sat();
 		IResponse unsat();
 		IResponse immediate_exit();

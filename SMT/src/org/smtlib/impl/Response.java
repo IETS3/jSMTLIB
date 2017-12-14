@@ -81,6 +81,9 @@ public class Response {
 		public IResponse unsat() { return UNSAT; }
 
 		@Override
+		public IResponse timeout() { return TIMEOUT; }
+
+		@Override
 		public IResponse immediate_exit() { return IMMEDIATE_EXIT; }
 
 		@Override

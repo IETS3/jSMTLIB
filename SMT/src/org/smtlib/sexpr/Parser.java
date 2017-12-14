@@ -958,6 +958,7 @@ public class Parser extends Lexer implements IParser {
 		if ("success".equals(response)) return f.success();
 		if ("sat".equals(response)) return f.sat();
 		if ("unsat".equals(response)) return f.unsat();
+		if ("timeout".equals(response)) return f.timeout();
 		if ("unknown".equals(response)) return f.unknown();
 		if ("unsupported".equals(response)) return f.unsupported();
 		if ("true".equals(response)) return smtConfig.exprFactory.symbol("true");
