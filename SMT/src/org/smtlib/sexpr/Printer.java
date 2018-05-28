@@ -131,7 +131,7 @@ public class Printer implements IPrinter, org.smtlib.IVisitor</*@Nullable*/ Void
 	/*@Nullable*/
 	@Override
 	public Void visit(IDecimal e) throws IVisitor.VisitorException {
-		try { w.append(e.value().toString()); } catch (IOException ex) { throw new IVisitor.VisitorException(ex); }
+		try { w.append(e.value().toPlainString()); } catch (IOException ex) { throw new IVisitor.VisitorException(ex); }
 		return null;
 	}
 
@@ -282,8 +282,11 @@ public class Printer implements IPrinter, org.smtlib.IVisitor</*@Nullable*/ Void
 	}
 
 	@Override
-	public Void visit(IAttribute<? extends IAttributeValue> e) throws IVisitor.VisitorException {
+	public Void visit(IAttribute<?> e) throws IVisitor.VisitorException {
 		try {
+			if (!(e.attrValue() instanceof IAttributeValue)) {
+				throw new IVisitor.VisitorException("encountered IAttribute<T> with T of unexpected type " + e.getClass().toString(), e.pos());
+			}
 			/*@Nullable*/IAttributeValue o;
 			e.keyword().accept(this);
 			if ((o=e.attrValue()) != null) {
