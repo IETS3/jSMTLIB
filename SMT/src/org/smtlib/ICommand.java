@@ -54,6 +54,18 @@ public interface ICommand extends IAccept {
 		/** Creates a declare-sort command object. */
 		Ideclare_sort declare_sort(ISymbol sym, INumeral arity);
 		
+		/** Creates a declare-datatypes selector declaration. */
+		Iselector_dec selector_dec(ISymbol symbol, ISort sort);
+		
+		/** Creates a declare-datatypes constructor declaration. */
+		Iconstructor_dec constructor_dec(ISymbol symbol, List<Iselector_dec> selectors);
+
+		/** Creates a declare-datatypes parameterized datatype declaration. */
+		Idatatype_dec_par datatype_dec_par(List<ISymbol> template_symbols, List<Iconstructor_dec> constructors);
+
+		/** Creates a declare-datatypes command object. */
+		Ideclare_datatypes declare_datatypes(List<Ideclare_sort> sorts, List<Idatatype_dec_par> datatypes);
+
 		/** Creates a define-fun command object */
 		Idefine_fun define_fun(IIdentifier id, List<IDeclaration> declarations, ISort resultSort, IExpr expression);
 		
@@ -134,6 +146,30 @@ public interface ICommand extends IAccept {
 		ISort resultSort();
 	}
 	
+	/** Interface to be implemented by all selector_dec objects. */
+	static public interface Iselector_dec extends ICommand {
+		ISymbol symbol();
+		ISort sort();
+	}
+
+	/** Interface to be implemented by all constructor_dec objects. */
+	static public interface Iconstructor_dec extends ICommand {
+		ISymbol symbol();
+		List<Iselector_dec> selector_dec();
+	}
+
+	/** Interface to be implemented by all datatype_dec_par objects. */
+	static public interface Idatatype_dec_par extends ICommand {
+		List<ISymbol> symbols();
+		List<Iconstructor_dec> constructors();
+	}
+
+	/** Interface to be implemented by all declare_datatype objects. */
+	static public interface Ideclare_datatypes extends ICommand {
+		List<ISymbol> symbols();
+		List<Idatatype_dec_par> datatypes();
+	}
+
 	/** Interface to be implemented by all objects representing SMT-LIB declare-sort commands. */
 	static public interface Ideclare_sort extends ICommand {
 		ISymbol sortSymbol();

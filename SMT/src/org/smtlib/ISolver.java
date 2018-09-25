@@ -7,6 +7,7 @@ package org.smtlib;
 
 import org.smtlib.ICommand.Ideclare_const;
 import org.smtlib.ICommand.Ideclare_fun;
+import org.smtlib.ICommand.Ideclare_datatypes;
 import org.smtlib.ICommand.Ideclare_sort;
 import org.smtlib.ICommand.Idefine_fun;
 import org.smtlib.ICommand.Idefine_sort;
@@ -90,6 +91,9 @@ public interface ISolver {
 	/** Defines a new uninterpreted constant; returns success or error*/
 	IResponse declare_const(Ideclare_const cmd); // FIXME - use ISymbol, ISort as arguments?
 	
+	/** Defines new datatypes; returns success or error*/
+	IResponse declare_datatypes(Ideclare_datatypes cmd); // FIXME - use ISymbol, ISort as arguments?
+
 	/** Defines a new uninterpreted constant or function; returns success or error*/
 	IResponse declare_fun(Ideclare_fun cmd);
 	

@@ -30,6 +30,7 @@ import org.smtlib.sexpr.ISexpr;
 import org.smtlib.impl.SMTExpr;
 import org.smtlib.ICommand.Ideclare_fun;
 import org.smtlib.ICommand.Ideclare_sort;
+import org.smtlib.ICommand.Ideclare_datatypes;
 import org.smtlib.ICommand.Ideclare_const;
 import org.smtlib.ICommand.Idefine_fun;
 import org.smtlib.ICommand.Idefine_sort;
@@ -505,6 +506,17 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	}
 
 	@Override
+	public IResponse echo(IStringLiteral arg) {
+		try {
+			checkSatStatus = null;
+			return parseResponse(solverProcess.sendAndListen(arg.value(),"\n"));
+			
+		} catch (IOException e) {
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
+		}
+	}
+
+	@Override
 	public IResponse define_fun(Idefine_fun cmd) {
 		if (!logicSet) {
 			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a define-fun command is issued");
@@ -523,6 +535,21 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 	public IResponse declare_sort(Ideclare_sort cmd) {
 		if (!logicSet) {
 			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a declare-sort command is issued");
+		}
+		try {
+			checkSatStatus = null;
+			return parseResponse(solverProcess.sendAndListen(translate(cmd),"\n"));
+		} catch (IOException e) {
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
+		} catch (IVisitor.VisitorException e) {
+			return smtConfig.responseFactory.error("jSMTLIB: Error writing to Z3 solver: " + e);
+		}
+	}
+
+	@Override
+	public IResponse declare_datatypes(Ideclare_datatypes cmd) {
+		if (!logicSet) {
+			return smtConfig.responseFactory.error("jSMTLIB: The logic must be set before a declare-datatypes command is issued");
 		}
 		try {
 			checkSatStatus = null;
@@ -654,6 +681,8 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 				return smtConfig.exprFactory.numeral(sexpr.toString());
 			case "Expr":
 				return ((Sexpr.Expr)sexpr).expr;
+			case "string-literal":
+				return smtConfig.exprFactory.quotedString(sexpr.toString());
 			default:
 				throw new SMT.InternalException("encountered unknown kind of SExpr: '" + sexpr.kind() + "':" + sexpr.toString());
 		}
@@ -741,7 +770,8 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 		public Void visit(IFcnExpr e) throws IVisitor.VisitorException {
 			// Only - for >=2 args is not correctly done, but we can't delegate to translateSMT because it might be a sub-expression.
 			Iterator<IExpr> iter = e.args().iterator();
-			if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list in function call (" + e.head().toString() + ")");
+			// TODO: BEN: what is this restriction good for? Why should a function call not be allowed to have no arguments?
+			//  if (!iter.hasNext()) throw new SMTLIBRuntimeException("Did not expect an empty argument list in function call (" + e.head().toString() + ")");
 			IQualifiedIdentifier fcn = e.head();
 			int length = e.args().size();
 			if (length > 2 && (fcn instanceof IIdentifier) && fcn.toString().equals("-")) {

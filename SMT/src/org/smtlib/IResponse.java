@@ -59,8 +59,8 @@ public interface IResponse extends IAccept {
 		IResponse stringLiteral(String value);
 		IResponse numericLiteral(int value);
 		IResponse get_option_response(IAttributeValue v);
-		IResponse.IAttributeList get_info_response(IAttribute<?> attr);
-		IResponse.IAttributeList get_info_response(List<IAttribute<?>> attrList);
+		IResponse.IAttributeList get_info_response(IAttribute<? extends IAttributeValue> attr);
+		IResponse.IAttributeList get_info_response(List<IAttribute<? extends IAttributeValue>> attrList);
 		IResponse.IProofResponse get_proof_response();
 		IResponse.IValueResponse get_value_response(List<IPair<IExpr,IExpr>> values);
 		<T1,T2> IPair<T1,T2> pair(T1 first, T2 second);
