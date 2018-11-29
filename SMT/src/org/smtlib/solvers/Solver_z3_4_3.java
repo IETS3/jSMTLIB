@@ -202,8 +202,10 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 				response = response.substring(0,mm.start()) + "#b" + bits + response.substring(mm.end(),response.length());
 				mm = oldbv.matcher(response);
 			}
-			if (isMac && response.startsWith("success")) return smtConfig.responseFactory.success(); // IFXME - this is just to avoid a problem with the Mac Z3 implementation
-			if (response.contains("error")) {
+			if (isMac && response.startsWith("success")) return smtConfig.responseFactory.success(); // FIXME - this is just to avoid a problem with the Mac Z3 implementation
+			// NOTE: previously, this was 'response.contains("error")'. However, this resulted in every query using a variable name containing the string "error" to result in an error...
+			if (response.startsWith("error")) {
+				
 				// Z3 returns an s-expr (always?)
 				// FIXME - (1) the {Print} also needs {Space}; (2) err_getValueTypes.tst returns a non-error s-expr and then an error s-expr - this fails for that case
 				//Pattern p = Pattern.compile("\\p{Space}*\\(\\p{Blank}*error\\p{Blank}+\"(([\\p{Space}\\p{Print}^[\\\"\\\\]]|\\\\\")*)\"\\p{Blank}*\\)\\p{Space}*");
@@ -663,6 +665,31 @@ public class Solver_z3_4_3 extends AbstractSolver implements ISolver {
 			    ISexpr head = tail.remove(0);
 				if (!("token".equals(head.kind()) || "symbol".equals(head.kind()))) {
 					throw new SMT.InternalException("Cannot translate SExpr.Seq to IExpr since it does not start with a token:\n" + sexpr.toString() + "\n" + head.kind());
+				}
+				// handle the special case of let-expressions
+				if ("let".equals(head.toString())) {
+					if (tail.size() != 2) {
+						throw new SMT.InternalException("Let-expression has an invalid number of arguments. Expected: 2, Actual: " + Integer.toString(tail.size()));
+					}
+					ISexpr bindings = tail.remove(0);
+					ISexpr expr = tail.remove(0);
+					if (!"sequence".equals(bindings.kind())) {
+						throw new SMT.InternalException("first argument of a let-expression must be a sequence of bindings.");
+					}
+					List<IExpr.IBinding> translatedBindings = new LinkedList<IExpr.IBinding>();
+					for (ISexpr binding : ((Sexpr.Seq)bindings).sexprs()) {
+						if (!"sequence".equals(binding.kind())) {
+							throw new SMT.InternalException("bindings of let-expressions should be sequences.");
+						}
+						List<ISexpr> subs = ((Sexpr.Seq)binding).sexprs();
+						if (subs.size() != 2) {
+							throw new SMT.InternalException("bindings of let-expressions are supposed to contain exactly 2 elements.");
+						}
+						ISexpr varname = subs.remove(0);
+						IExpr varExpr = translateSExprToIExpr(subs.remove(0));
+						translatedBindings.add(smtConfig.exprFactory.binding(smtConfig.exprFactory.symbol(varname.toString()), varExpr));
+					}
+					return smtConfig.exprFactory.let(translatedBindings, translateSExprToIExpr(expr));
 				}
 				// translate to function application
 
