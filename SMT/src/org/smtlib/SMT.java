@@ -901,6 +901,10 @@ public class SMT {
 		public InternalException(String msg) {
 			super(msg);
 		}
+
+		public InternalException(String msg, Throwable cause) {
+			super(msg, cause);
+		}
 	}
 	
 	/** This class is a prompter used when more data is needed from a data source */
