@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
+import org.smtlib.ICommand.Ideclare_datatypes;
 import org.smtlib.ICommand.Ideclare_const;
 import org.smtlib.ICommand.Ideclare_fun;
 import org.smtlib.ICommand.Ideclare_sort;
@@ -476,6 +477,15 @@ public class Solver_test implements ISolver {
 		} else {
 			return list.get(0); // FIXME - return all?
 		}
+	}
+
+	@Override
+	public IResponse declare_datatypes(Ideclare_datatypes cmd) {
+		if (logicSet == null) {
+			throw new SMT.InternalException("jSMTLIB: The logic must be set before a declare-datatypes command is issued");
+		}
+		// TODO: do some typechecking here.
+		return null;
 	}
 
 	@Override 

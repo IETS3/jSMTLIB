@@ -6,6 +6,7 @@
 package org.smtlib;
 
 import org.smtlib.ICommand.Ideclare_const;
+import org.smtlib.ICommand.Ideclare_datatypes;
 import org.smtlib.ICommand.Ideclare_fun;
 import org.smtlib.ICommand.Ideclare_sort;
 import org.smtlib.ICommand.Idefine_fun;
@@ -137,6 +138,12 @@ public class AbstractSolver implements ISolver {
 	@Override
 	public IResponse declare_const(Ideclare_const cmd) {
 		throw new UnsupportedOperationException("AbstractSolver.declare_const");
+	}
+
+	/** @see org.smtlib.ISolver#declare_datatypes(ICommand.Ideclare_datatypes)  */
+	@Override
+	public IResponse declare_datatypes(Ideclare_datatypes cmd) {
+		throw new UnsupportedOperationException("AbstractSolver.declare_datatypes");
 	}
 
 	/** @see org.smtlib.ISolver#declare_fun(ICommand.Ideclare_fun)  */
