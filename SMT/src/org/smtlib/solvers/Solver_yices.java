@@ -67,7 +67,7 @@ public class Solver_yices extends Solver_test implements ISolver {
 	public Solver_yices(SMT.Configuration smtConfig, String executable) {
 		super(smtConfig,"");
 		cmds[0] = executable;
-		solverProcess = new SolverProcess(cmds,"yices > ",smtConfig.logfile);
+		solverProcess = new SolverProcess(cmds,"yices > ",smtConfig.logfile,smtConfig.dumpSmtlibToStdout);
 	}
 	
 	@Override

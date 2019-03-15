@@ -168,6 +168,9 @@ public class SMT {
 		/** The file to which to write the communication, for debugging or reference; null means default */
 		/*@Nullable*/ public String logfile = null;
 		
+		/** Whether to output the SMT-LIB to stdout */
+		/*@Nullable*/ public Boolean dumpSmtlibToStdout = false;
+		
 		/** The files of SMT-LIB commands to process; if null or empty then the standard input is used */
 		/*@Nullable*/ public List<String> files = new LinkedList<String>();
 		

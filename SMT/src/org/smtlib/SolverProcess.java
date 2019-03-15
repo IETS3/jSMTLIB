@@ -6,6 +6,7 @@
 package org.smtlib;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,6 +22,34 @@ import java.util.List;
  * @author David Cok
  */
 public class SolverProcess {
+	
+	public class MultiWriter extends java.io.Writer {
+		protected java.util.List<java.io.Writer> writers;
+		public MultiWriter() {
+			this.writers = new java.util.LinkedList<java.io.Writer>();
+		}
+		void addWriter(java.io.Writer w) {
+			this.writers.add(w);
+		}
+		@Override
+		public void close() throws IOException {
+			for (java.io.Writer w : writers) {
+				w.close();
+			}
+		}
+		@Override
+		public void flush() throws IOException {
+			for (java.io.Writer w : writers) {
+				w.flush();
+			}
+		}
+		@Override
+		public void write(char[] cbuf, int off, int len) throws IOException {
+			for (java.io.Writer w : writers) {
+				w.write(cbuf, off, len);
+			}
+		}
+	}
 	
 	final static protected String eol = System.getProperty("line.separator");
 	
@@ -50,19 +79,24 @@ public class SolverProcess {
 	protected Reader errors;
 	
 	/** A place (e.g., log file), if non-null, to write all outbound communications for diagnostic purposes */
-	public /*@Nullable*/Writer log;
+	public /*@Nullable*/MultiWriter log;
 	
 	/** Constructs a SolverProcess object, without actually starting the process as yet.
 	 * @param cmd the command-line that will launch the desired process
 	 * @param endMarker text that marks the end of text returned from the process, e.g. the end of the 
 	 * prompt for new input
 	 * @param logfile if not null, the name of a file to log communications to, for diagnostic purposes
+	 * @param logConsole whether to also log to stdout
 	 */
-	public SolverProcess(String[] cmd, String endMarker, /*@Nullable*/String logfile) {
+	public SolverProcess(String[] cmd, String endMarker, /*@Nullable*/String logfile, /*@Nullable*/Boolean logConsole) {
 		this.endMarker = endMarker;
 		try {
+			log = new MultiWriter();
 			if (logfile != null) {
-				log = new FileWriter(logfile);
+				log.addWriter(new FileWriter(logfile));
+			}
+			if (Boolean.TRUE.equals(logConsole)) {
+				log.addWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
 			}
 		} catch (IOException e) {
 			System.out.println("Failed to create solver log file " + logfile + ": " + e); // FIXME - wwrite to somewhere better

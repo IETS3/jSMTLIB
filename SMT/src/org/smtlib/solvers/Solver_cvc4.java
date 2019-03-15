@@ -89,7 +89,7 @@ public class Solver_cvc4 extends AbstractSolver implements ISolver {
 			args.add("--tlimit-per=" + Long.toString(Math.round(1000*timeout+0.5)));
 			cmds = args.toArray(new String[args.size()]);
 		}
-		solverProcess = new SolverProcess(cmds,prompt,smtConfig.logfile) {
+		solverProcess = new SolverProcess(cmds,prompt,smtConfig.logfile,smtConfig.dumpSmtlibToStdout) {
 			
 			@Override
 			public String listen() throws IOException {
